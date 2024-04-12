@@ -14,7 +14,7 @@ namespace LibraryManagement.Api.Models.Books
         [ForeignKey("Country")]
         public int? CountryInfoId { get; set; }
         public virtual Country? CountryInfo { get; set; }
-        public virtual IEnumerable<Book> Books { get; set; } = default!;
+
 
     }
 }

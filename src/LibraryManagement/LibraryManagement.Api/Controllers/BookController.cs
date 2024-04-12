@@ -1,5 +1,6 @@
-﻿using LibraryManagement.Api.Data;
-using LibraryManagement.Api.Models.Books;
+﻿using LibraryManagement.Api.Models.Books;
+using LibraryManagement.Api.Repositories.Base;
+using LibraryManagement.Contract.Books;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,106 +11,161 @@ namespace LibraryManagement.Api.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
-        private readonly LMSDbContext _context;
+        private readonly IBookRepository _bookRepository;
 
-        public BookController(LMSDbContext context)
+        public BookController(IBookRepository bookRepository)
         {
-            _context = context;
+            _bookRepository = bookRepository;
         }
 
-        // GET: api/books
+        // GET: api/book
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<IActionResult> GetAllBooks()
         {
-            return await _context.Books
-                .AsNoTracking()
-                .AsSplitQuery()
-                .Include(b => b.BookAuthor)
-                    .ThenInclude(a => a!.CountryInfo)
-                .Include(b => b.BookGenre)
-                .Include(b => b.BookPublisher)
-                    .ThenInclude(p => p!.CountryInfo)
-                .ToListAsync();
-        }
-
-        // GET: api/books/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBookById(int id)
-        {
-            var book = await _context.Books
-                .AsSplitQuery()
-                .Include(b => b.BookAuthor)
-                .Include(b => b.BookGenre)
-                .Include(b => b.BookPublisher)
-                .FirstOrDefaultAsync(b => b.BookID == id);
-
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            return book;
-        }
-
-        // POST: api/books
-        [HttpPost]
-        public async Task<ActionResult<Book>> CreateBook(Book book)
-        {
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetBookById), new { id = book.BookID }, book);
-        }
-
-        // PUT: api/books/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBook(int id, Book book)
-        {
-            if (id != book.BookID)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(book).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var books = await _bookRepository.GetAll();
+                return Ok(books.Select(FromBookEntity));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!BookExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            return NoContent();
         }
 
-        // DELETE: api/books/{id}
+        // GET: api/book/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetBookById(Guid id)
+        {
+            try
+            {
+                var book = await _bookRepository.FindByCondition(b => b.BookId == id).FirstOrDefaultAsync();
+
+                if (book == null)
+                {
+                    return NotFound($"Book with ID {id} not found");
+                }
+
+                return Ok(FromBookEntity(book));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // POST: api/book
+        [HttpPost]
+        public async Task<IActionResult> AddBook([FromBody] CreateBookRequest request)
+        {
+            try
+            {
+                // TODO: add cloud services or local upload controller
+                var newEntity = new Book
+                {
+                    Title = request.Title,
+                    ISBN = request.ISBN,
+                    Description = request.Description,
+                    AdditionalDetails = request.AdditionalDetails,
+                    AuthorId = request.AuthorId,
+                    GenreId = request.GenreId,
+                    PublisherId = request.PublisherId,
+                    Pages = request.Pages,
+                    PublicationDate = request.PublicationDate,
+                    CoverImagePath = request.CoverImagePath,
+                };
+                await _bookRepository.Add(newEntity);
+                return CreatedAtAction(nameof(GetBookById), new { id = newEntity.BookId }, request);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // PUT: api/book/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBook(Guid id, [FromBody] UpdateBookRequest request)
+        {
+            try
+            {
+                var existingBook = await _bookRepository.FindByCondition(b => b.BookId == id).FirstOrDefaultAsync();
+
+                if (existingBook == null)
+                {
+                    return NotFound($"Book with ID {id} not found");
+                }
+
+                // Update properties of existingBook based on request
+                existingBook.Title = request.Title;
+                existingBook.ISBN = request.ISBN;
+                existingBook.Description = request.Description;
+                existingBook.AdditionalDetails = request.AdditionalDetails;
+
+                existingBook.AuthorId = request.AuthorId;
+                existingBook.GenreId = request.GenreId;
+                existingBook.PublisherId = request.PublisherId;
+                
+                existingBook.Language = request.Language;
+                existingBook.Pages = request.Pages;
+                existingBook.PublicationDate = request.PublicationDate;
+                existingBook.CoverImagePath = request.CoverImagePath;
+
+                await _bookRepository.Update(existingBook);
+
+                return Ok(FromBookEntity(existingBook));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // DELETE: api/book/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBook(int id)
+        public async Task<IActionResult> DeleteBook(Guid id)
         {
-            var book = await _context.Books.FindAsync(id);
-            if (book == null)
+            try
             {
-                return NotFound();
+                var existingBook = await _bookRepository.FindByCondition(b => b.BookId == id).FirstOrDefaultAsync();
+
+                if (existingBook == null)
+                {
+                    return NotFound($"Book with ID {id} not found");
+                }
+
+                await _bookRepository.Delete(existingBook);
+
+                return NoContent(); // 204 No Content
             }
-
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-
-        private bool BookExists(int id)
+        private static BookResponse FromBookEntity(Book book)
         {
-            return _context.Books.Any(b => b.BookID == id);
+            if (book == null)
+                throw new ArgumentNullException(nameof(book));
+
+            return new BookResponse
+            {
+                BookId = book.BookId,
+                Title = book.Title,
+                ISBN = book.ISBN,
+                Description = book.Description,
+                AdditionalDetails = book.AdditionalDetails,
+                AuthorId = book.AuthorId,
+                AuthorName = book.Author?.FullName,
+                GenreId = book.GenreId,
+                GenreName = book.Genre?.GenreName,
+                PublisherId = book.PublisherId,
+                PublisherName = book.Publisher?.PublisherName,
+                PublicationDate = book.PublicationDate,
+                CoverImagePath = book.CoverImagePath,
+                Pages = book.Pages,
+                Language = book.Language
+            };
         }
     }
 }

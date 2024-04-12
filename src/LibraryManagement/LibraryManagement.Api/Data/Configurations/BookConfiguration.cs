@@ -9,22 +9,22 @@ namespace LibraryManagement.Api.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Book> builder)
         {
-            builder.HasKey(b => b.BookID);
+            builder.HasKey(b => b.BookId);
             builder.Property(b => b.Title).IsRequired();
-            builder.Property(b => b.ISBN).IsRequired().HasMaxLength(13); 
+            builder.Property(b => b.ISBN).IsRequired().HasMaxLength(13);
 
             // Foreign Key configurations
-            builder.HasOne(b => b.BookAuthor)
-                   .WithMany(a => a.Books)
-                   .HasForeignKey(b => b.AuthorID);
+            builder.HasOne(b => b.Author)
+                   .WithMany()
+                   .HasForeignKey(b => b.AuthorId);
 
-            builder.HasOne(b => b.BookGenre)
-                   .WithMany(g => g.Books)
-                   .HasForeignKey(b => b.GenreID);
+            builder.HasOne(b => b.Genre)
+                   .WithMany()
+                   .HasForeignKey(b => b.GenreId);
 
-            builder.HasOne(b => b.BookPublisher)
-                   .WithMany(p => p.Books)
-                   .HasForeignKey(b => b.PublisherID);
+            builder.HasOne(b => b.Publisher)
+                   .WithMany()
+                   .HasForeignKey(b => b.PublisherId);
 
             // Other property configurations (optional)
             builder.Property(b => b.Description).HasMaxLength(300);

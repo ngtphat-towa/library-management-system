@@ -1,0 +1,44 @@
+# Library Management API Documentation
+
+# Base URL for the Library Management API
+@BASE_URL = http://localhost:5090/api/
+
+###
+# Get all books
+GET $BASE_URL/books
+
+###
+# Get a book by ID (replace {id} with the actual book ID)
+GET $BASE_URL/books/{id}
+
+###
+# Add a new book
+POST $BASE_URL/books
+Content-Type: application/json
+
+{
+  "Title": "New Book Title",
+  "ISBN": "123-456-7890",
+  "Description": "This is a new book description",
+  "AuthorId": 1,        
+  "GenreId": 2,         
+  "PublisherId": 3, 
+  "Language":"English",   
+  "Pages": 200,
+  "PublicationDate": "2024-04-12T00:00:00Z",
+  "CoverImagePath": "path/to/cover/image.jpg"
+}
+
+###
+# Update a book by ID (replace {id} with the actual book ID)
+PUT $BASE_URL/books/{id}
+Content-Type: application/json
+
+{
+  "Title": "Updated Book Title",
+  "ISBN": "987-654-3210",      
+  "Description": "This is an updated book description"
+}
+
+# Delete a book by ID (replace {id} with the actual book ID)
+DELETE $BASE_URL/books/{id}

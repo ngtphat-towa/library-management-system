@@ -10,7 +10,7 @@ namespace LibraryManagement.Api.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Author> builder)
         {
-            builder.HasKey(a => a.AuthorID);
+            builder.HasKey(a => a.AuthorId);
             builder.Property(a => a.Biography).HasMaxLength(300);
             builder.Property(a => a.FullName).IsRequired();
 

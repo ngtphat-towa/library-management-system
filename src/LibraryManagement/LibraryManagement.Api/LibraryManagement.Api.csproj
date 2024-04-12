@@ -25,6 +25,11 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LibraryManagement.Contract\LibraryManagement.Contract.csproj" />
   </ItemGroup>
 
 </Project>

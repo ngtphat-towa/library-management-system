@@ -10,8 +10,8 @@ namespace LibraryManagement.Api.Models.Commons
         public int CountryId { get; set; }
         public string CountryName { get; set; } = default!;
 
-        public virtual IEnumerable<Author> Authors { get; set; } = default!;
-        public virtual IEnumerable<Publisher> Publishers { get; set; } = default!;
-        public virtual IEnumerable<Book> Books { get; set; } = default!;
+        public virtual IEnumerable<Author>? Authors { get; set; }
+        public virtual IEnumerable<Publisher>? Publishers { get; set; }
+        public virtual IEnumerable<Book>? Books { get; set; }
     }
 }

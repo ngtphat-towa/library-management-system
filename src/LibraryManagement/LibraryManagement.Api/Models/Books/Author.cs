@@ -8,13 +8,13 @@ namespace LibraryManagement.Api.Models.Books
     public class Author
     {
         [Key]
-        public int AuthorID { get;  set; }
+        public int AuthorId { get; set; }
         public string Biography { get; set; } = default!;
         public string FullName { get; set; } = default!;
 
         [ForeignKey("Country")]
         public int? CountryInfoId { get; set; }
         public virtual Country? CountryInfo { get; set; }
-        public virtual IEnumerable<Book> Books { get; set; } = default!;
+
     }
 }
