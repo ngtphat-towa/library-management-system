@@ -6,7 +6,7 @@ namespace LibraryManagement.Api.Models.Books
     public class Book
     {
         [Key]
-        public int BookID { get; private set; }
+        public int BookID { get;  set; }
         public string Title { get; set; } = default!;
         public string ISBN { get; set; } = default!;
         public string Description { get; set; } = default!;

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace LibraryManagement.Api.Migrations
 {
     /// <inheritdoc />
@@ -28,14 +30,14 @@ namespace LibraryManagement.Api.Migrations
                 name: "Genres",
                 columns: table => new
                 {
-                    GenreID = table.Column<int>(type: "int", nullable: false)
+                    GenreId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Genres", x => x.GenreID);
+                    table.PrimaryKey("PK_Genres", x => x.GenreId);
                 });
 
             migrationBuilder.CreateTable(
@@ -46,15 +48,14 @@ namespace LibraryManagement.Api.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Biography = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NationalityCountryId = table.Column<int>(type: "int", nullable: true),
-                    CountryInfoCountryId = table.Column<int>(type: "int", nullable: true)
+                    CountryInfoId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Authors", x => x.AuthorID);
                     table.ForeignKey(
-                        name: "FK_Authors_Countries_CountryInfoCountryId",
-                        column: x => x.CountryInfoCountryId,
+                        name: "FK_Authors_Countries_CountryInfoId",
+                        column: x => x.CountryInfoId,
                         principalTable: "Countries",
                         principalColumn: "CountryId");
                 });
@@ -66,14 +67,14 @@ namespace LibraryManagement.Api.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CountryId = table.Column<int>(type: "int", nullable: true)
+                    CountryInfoId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Publishers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Publishers_Countries_CountryId",
-                        column: x => x.CountryId,
+                        name: "FK_Publishers_Countries_CountryInfoId",
+                        column: x => x.CountryInfoId,
                         principalTable: "Countries",
                         principalColumn: "CountryId");
                 });
@@ -106,7 +107,7 @@ namespace LibraryManagement.Api.Migrations
                         name: "FK_Books_Genres_GenreID",
                         column: x => x.GenreID,
                         principalTable: "Genres",
-                        principalColumn: "GenreID");
+                        principalColumn: "GenreId");
                     table.ForeignKey(
                         name: "FK_Books_Publishers_PublisherID",
                         column: x => x.PublisherID,
@@ -114,10 +115,60 @@ namespace LibraryManagement.Api.Migrations
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Authors_CountryInfoCountryId",
+            migrationBuilder.InsertData(
+                table: "Countries",
+                columns: new[] { "CountryId", "CountryName" },
+                values: new object[,]
+                {
+                    { 1, "USA" },
+                    { 2, "UK" },
+                    { 3, "Canada" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Genres",
+                columns: new[] { "GenreId", "Description", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Fiction Books", "Fiction" },
+                    { 2, "Non-Fiction Books", "Non-Fiction" },
+                    { 3, "Science Fiction Books", "Science Fiction" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Authors",
-                column: "CountryInfoCountryId");
+                columns: new[] { "AuthorID", "Biography", "CountryInfoId", "FullName" },
+                values: new object[,]
+                {
+                    { 1, "J.K. Rowling's Biography", 1, "J.K. Rowling" },
+                    { 2, "Stephen King's Biography", 2, "Stephen King" },
+                    { 3, "Agatha Christie's Biography", 3, "Agatha Christie" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Publishers",
+                columns: new[] { "Id", "CountryInfoId", "Name" },
+                values: new object[,]
+                {
+                    { 1, 1, "Penguin Random House" },
+                    { 2, 2, "HarperCollins" },
+                    { 3, 3, "Simon & Schuster" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Books",
+                columns: new[] { "BookID", "AdditionalDetails", "AuthorID", "BookImagePath", "Description", "GenreID", "ISBN", "PublicationDate", "PublisherID", "Title" },
+                values: new object[,]
+                {
+                    { 1, null, 1, null, "The first book in the Harry Potter series", 1, "9780590353427", new DateTime(1997, 6, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Harry Potter and the Sorcerer's Stone" },
+                    { 2, null, 2, null, "A horror novel by Stephen King", 1, "9780307743657", new DateTime(1977, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, "The Shining" },
+                    { 3, null, 3, null, "A detective novel by Agatha Christie", 1, "9780062073495", new DateTime(1934, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3, "Murder on the Orient Express" }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Authors_CountryInfoId",
+                table: "Authors",
+                column: "CountryInfoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_AuthorID",
@@ -135,9 +186,9 @@ namespace LibraryManagement.Api.Migrations
                 column: "PublisherID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Publishers_CountryId",
+                name: "IX_Publishers_CountryInfoId",
                 table: "Publishers",
-                column: "CountryId");
+                column: "CountryInfoId");
         }
 
         /// <inheritdoc />

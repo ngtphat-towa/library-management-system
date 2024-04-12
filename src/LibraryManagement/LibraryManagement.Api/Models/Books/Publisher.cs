@@ -13,7 +13,7 @@ namespace LibraryManagement.Api.Models.Books
         public string Name { get; set; } = default!;
 
         [ForeignKey("Country")]
-        public int? CountryId { get; set; }
+        public int? CountryInfoId { get; set; }
         public virtual Country? CountryInfo { get; set; }
     }
 }

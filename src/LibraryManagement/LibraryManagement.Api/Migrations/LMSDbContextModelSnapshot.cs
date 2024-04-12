@@ -34,21 +34,41 @@ namespace LibraryManagement.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("CountryInfoCountryId")
+                    b.Property<int?>("CountryInfoId")
                         .HasColumnType("int");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("NationalityCountryId")
-                        .HasColumnType("int");
-
                     b.HasKey("AuthorID");
 
-                    b.HasIndex("CountryInfoCountryId");
+                    b.HasIndex("CountryInfoId");
 
                     b.ToTable("Authors");
+
+                    b.HasData(
+                        new
+                        {
+                            AuthorID = 1,
+                            Biography = "J.K. Rowling's Biography",
+                            CountryInfoId = 1,
+                            FullName = "J.K. Rowling"
+                        },
+                        new
+                        {
+                            AuthorID = 2,
+                            Biography = "Stephen King's Biography",
+                            CountryInfoId = 2,
+                            FullName = "Stephen King"
+                        },
+                        new
+                        {
+                            AuthorID = 3,
+                            Biography = "Agatha Christie's Biography",
+                            CountryInfoId = 3,
+                            FullName = "Agatha Christie"
+                        });
                 });
 
             modelBuilder.Entity("LibraryManagement.Api.Models.Books.Book", b =>
@@ -98,15 +118,50 @@ namespace LibraryManagement.Api.Migrations
                     b.HasIndex("PublisherID");
 
                     b.ToTable("Books");
+
+                    b.HasData(
+                        new
+                        {
+                            BookID = 1,
+                            AuthorID = 1,
+                            Description = "The first book in the Harry Potter series",
+                            GenreID = 1,
+                            ISBN = "9780590353427",
+                            PublicationDate = new DateTime(1997, 6, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PublisherID = 1,
+                            Title = "Harry Potter and the Sorcerer's Stone"
+                        },
+                        new
+                        {
+                            BookID = 2,
+                            AuthorID = 2,
+                            Description = "A horror novel by Stephen King",
+                            GenreID = 1,
+                            ISBN = "9780307743657",
+                            PublicationDate = new DateTime(1977, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PublisherID = 2,
+                            Title = "The Shining"
+                        },
+                        new
+                        {
+                            BookID = 3,
+                            AuthorID = 3,
+                            Description = "A detective novel by Agatha Christie",
+                            GenreID = 1,
+                            ISBN = "9780062073495",
+                            PublicationDate = new DateTime(1934, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PublisherID = 3,
+                            Title = "Murder on the Orient Express"
+                        });
                 });
 
             modelBuilder.Entity("LibraryManagement.Api.Models.Books.Genre", b =>
                 {
-                    b.Property<int>("GenreID")
+                    b.Property<int>("GenreId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GenreID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GenreId"));
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -116,9 +171,29 @@ namespace LibraryManagement.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("GenreID");
+                    b.HasKey("GenreId");
 
                     b.ToTable("Genres");
+
+                    b.HasData(
+                        new
+                        {
+                            GenreId = 1,
+                            Description = "Fiction Books",
+                            Name = "Fiction"
+                        },
+                        new
+                        {
+                            GenreId = 2,
+                            Description = "Non-Fiction Books",
+                            Name = "Non-Fiction"
+                        },
+                        new
+                        {
+                            GenreId = 3,
+                            Description = "Science Fiction Books",
+                            Name = "Science Fiction"
+                        });
                 });
 
             modelBuilder.Entity("LibraryManagement.Api.Models.Books.Publisher", b =>
@@ -129,7 +204,7 @@ namespace LibraryManagement.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CountryId")
+                    b.Property<int?>("CountryInfoId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -138,9 +213,29 @@ namespace LibraryManagement.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
+                    b.HasIndex("CountryInfoId");
 
                     b.ToTable("Publishers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CountryInfoId = 1,
+                            Name = "Penguin Random House"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CountryInfoId = 2,
+                            Name = "HarperCollins"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CountryInfoId = 3,
+                            Name = "Simon & Schuster"
+                        });
                 });
 
             modelBuilder.Entity("LibraryManagement.Api.Models.Commons.Country", b =>
@@ -158,13 +253,30 @@ namespace LibraryManagement.Api.Migrations
                     b.HasKey("CountryId");
 
                     b.ToTable("Countries");
+
+                    b.HasData(
+                        new
+                        {
+                            CountryId = 1,
+                            CountryName = "USA"
+                        },
+                        new
+                        {
+                            CountryId = 2,
+                            CountryName = "UK"
+                        },
+                        new
+                        {
+                            CountryId = 3,
+                            CountryName = "Canada"
+                        });
                 });
 
             modelBuilder.Entity("LibraryManagement.Api.Models.Books.Author", b =>
                 {
                     b.HasOne("LibraryManagement.Api.Models.Commons.Country", "CountryInfo")
                         .WithMany()
-                        .HasForeignKey("CountryInfoCountryId");
+                        .HasForeignKey("CountryInfoId");
 
                     b.Navigation("CountryInfo");
                 });
@@ -194,7 +306,7 @@ namespace LibraryManagement.Api.Migrations
                 {
                     b.HasOne("LibraryManagement.Api.Models.Commons.Country", "CountryInfo")
                         .WithMany()
-                        .HasForeignKey("CountryId");
+                        .HasForeignKey("CountryInfoId");
 
                     b.Navigation("CountryInfo");
                 });
