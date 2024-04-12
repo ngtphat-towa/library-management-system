@@ -32,8 +32,8 @@ namespace LibraryManagement.Api.Migrations
                 {
                     GenreId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    GenreName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,7 +46,7 @@ namespace LibraryManagement.Api.Migrations
                 {
                     AuthorID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Biography = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Biography = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountryInfoId = table.Column<int>(type: "int", nullable: true)
                 },
@@ -64,14 +64,14 @@ namespace LibraryManagement.Api.Migrations
                 name: "Publishers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    PublisherId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PublisherName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountryInfoId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Publishers", x => x.Id);
+                    table.PrimaryKey("PK_Publishers", x => x.PublisherId);
                     table.ForeignKey(
                         name: "FK_Publishers_Countries_CountryInfoId",
                         column: x => x.CountryInfoId,
@@ -86,14 +86,15 @@ namespace LibraryManagement.Api.Migrations
                     BookID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ISBN = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ISBN = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     AdditionalDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AuthorID = table.Column<int>(type: "int", nullable: true),
                     GenreID = table.Column<int>(type: "int", nullable: true),
                     PublisherID = table.Column<int>(type: "int", nullable: true),
                     PublicationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    BookImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    BookImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CountryId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -104,6 +105,11 @@ namespace LibraryManagement.Api.Migrations
                         principalTable: "Authors",
                         principalColumn: "AuthorID");
                     table.ForeignKey(
+                        name: "FK_Books_Countries_CountryId",
+                        column: x => x.CountryId,
+                        principalTable: "Countries",
+                        principalColumn: "CountryId");
+                    table.ForeignKey(
                         name: "FK_Books_Genres_GenreID",
                         column: x => x.GenreID,
                         principalTable: "Genres",
@@ -112,7 +118,7 @@ namespace LibraryManagement.Api.Migrations
                         name: "FK_Books_Publishers_PublisherID",
                         column: x => x.PublisherID,
                         principalTable: "Publishers",
-                        principalColumn: "Id");
+                        principalColumn: "PublisherId");
                 });
 
             migrationBuilder.InsertData(
@@ -127,7 +133,7 @@ namespace LibraryManagement.Api.Migrations
 
             migrationBuilder.InsertData(
                 table: "Genres",
-                columns: new[] { "GenreId", "Description", "Name" },
+                columns: new[] { "GenreId", "Description", "GenreName" },
                 values: new object[,]
                 {
                     { 1, "Fiction Books", "Fiction" },
@@ -147,7 +153,7 @@ namespace LibraryManagement.Api.Migrations
 
             migrationBuilder.InsertData(
                 table: "Publishers",
-                columns: new[] { "Id", "CountryInfoId", "Name" },
+                columns: new[] { "PublisherId", "CountryInfoId", "PublisherName" },
                 values: new object[,]
                 {
                     { 1, 1, "Penguin Random House" },
@@ -157,12 +163,12 @@ namespace LibraryManagement.Api.Migrations
 
             migrationBuilder.InsertData(
                 table: "Books",
-                columns: new[] { "BookID", "AdditionalDetails", "AuthorID", "BookImagePath", "Description", "GenreID", "ISBN", "PublicationDate", "PublisherID", "Title" },
+                columns: new[] { "BookID", "AdditionalDetails", "AuthorID", "BookImagePath", "CountryId", "Description", "GenreID", "ISBN", "PublicationDate", "PublisherID", "Title" },
                 values: new object[,]
                 {
-                    { 1, null, 1, null, "The first book in the Harry Potter series", 1, "9780590353427", new DateTime(1997, 6, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Harry Potter and the Sorcerer's Stone" },
-                    { 2, null, 2, null, "A horror novel by Stephen King", 1, "9780307743657", new DateTime(1977, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, "The Shining" },
-                    { 3, null, 3, null, "A detective novel by Agatha Christie", 1, "9780062073495", new DateTime(1934, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3, "Murder on the Orient Express" }
+                    { 1, null, 1, null, null, "The first book in the Harry Potter series", 1, "9780590353427", new DateTime(1997, 6, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Harry Potter and the Sorcerer's Stone" },
+                    { 2, null, 2, null, null, "A horror novel by Stephen King", 1, "9780307743657", new DateTime(1977, 1, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, "The Shining" },
+                    { 3, null, 3, null, null, "A detective novel by Agatha Christie", 1, "9780062073495", new DateTime(1934, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3, "Murder on the Orient Express" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -174,6 +180,11 @@ namespace LibraryManagement.Api.Migrations
                 name: "IX_Books_AuthorID",
                 table: "Books",
                 column: "AuthorID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_CountryId",
+                table: "Books",
+                column: "CountryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_GenreID",

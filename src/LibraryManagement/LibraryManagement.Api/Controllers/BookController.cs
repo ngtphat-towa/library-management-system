@@ -25,10 +25,10 @@ namespace LibraryManagement.Api.Controllers
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Include(b => b.BookAuthor)
-                    .ThenInclude(a => a.CountryInfo)
+                    .ThenInclude(a => a!.CountryInfo)
                 .Include(b => b.BookGenre)
                 .Include(b => b.BookPublisher)
-                    .ThenInclude(p => p.CountryInfo)
+                    .ThenInclude(p => p!.CountryInfo)
                 .ToListAsync();
         }
 

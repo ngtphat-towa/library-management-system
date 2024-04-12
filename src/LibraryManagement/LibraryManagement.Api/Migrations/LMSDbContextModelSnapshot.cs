@@ -32,7 +32,8 @@ namespace LibraryManagement.Api.Migrations
 
                     b.Property<string>("Biography")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<int?>("CountryInfoId")
                         .HasColumnType("int");
@@ -88,16 +89,21 @@ namespace LibraryManagement.Api.Migrations
                     b.Property<string>("BookImagePath")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<int?>("GenreID")
                         .HasColumnType("int");
 
                     b.Property<string>("ISBN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<DateTime?>("PublicationDate")
                         .HasColumnType("datetime2");
@@ -112,6 +118,8 @@ namespace LibraryManagement.Api.Migrations
                     b.HasKey("BookID");
 
                     b.HasIndex("AuthorID");
+
+                    b.HasIndex("CountryId");
 
                     b.HasIndex("GenreID");
 
@@ -165,9 +173,10 @@ namespace LibraryManagement.Api.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("GenreName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -180,38 +189,38 @@ namespace LibraryManagement.Api.Migrations
                         {
                             GenreId = 1,
                             Description = "Fiction Books",
-                            Name = "Fiction"
+                            GenreName = "Fiction"
                         },
                         new
                         {
                             GenreId = 2,
                             Description = "Non-Fiction Books",
-                            Name = "Non-Fiction"
+                            GenreName = "Non-Fiction"
                         },
                         new
                         {
                             GenreId = 3,
                             Description = "Science Fiction Books",
-                            Name = "Science Fiction"
+                            GenreName = "Science Fiction"
                         });
                 });
 
             modelBuilder.Entity("LibraryManagement.Api.Models.Books.Publisher", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PublisherId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PublisherId"));
 
                     b.Property<int?>("CountryInfoId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("PublisherName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("PublisherId");
 
                     b.HasIndex("CountryInfoId");
 
@@ -220,21 +229,21 @@ namespace LibraryManagement.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            PublisherId = 1,
                             CountryInfoId = 1,
-                            Name = "Penguin Random House"
+                            PublisherName = "Penguin Random House"
                         },
                         new
                         {
-                            Id = 2,
+                            PublisherId = 2,
                             CountryInfoId = 2,
-                            Name = "HarperCollins"
+                            PublisherName = "HarperCollins"
                         },
                         new
                         {
-                            Id = 3,
+                            PublisherId = 3,
                             CountryInfoId = 3,
-                            Name = "Simon & Schuster"
+                            PublisherName = "Simon & Schuster"
                         });
                 });
 
@@ -275,7 +284,7 @@ namespace LibraryManagement.Api.Migrations
             modelBuilder.Entity("LibraryManagement.Api.Models.Books.Author", b =>
                 {
                     b.HasOne("LibraryManagement.Api.Models.Commons.Country", "CountryInfo")
-                        .WithMany()
+                        .WithMany("Authors")
                         .HasForeignKey("CountryInfoId");
 
                     b.Navigation("CountryInfo");
@@ -284,15 +293,19 @@ namespace LibraryManagement.Api.Migrations
             modelBuilder.Entity("LibraryManagement.Api.Models.Books.Book", b =>
                 {
                     b.HasOne("LibraryManagement.Api.Models.Books.Author", "BookAuthor")
-                        .WithMany()
+                        .WithMany("Books")
                         .HasForeignKey("AuthorID");
 
+                    b.HasOne("LibraryManagement.Api.Models.Commons.Country", null)
+                        .WithMany("Books")
+                        .HasForeignKey("CountryId");
+
                     b.HasOne("LibraryManagement.Api.Models.Books.Genre", "BookGenre")
-                        .WithMany()
+                        .WithMany("Books")
                         .HasForeignKey("GenreID");
 
                     b.HasOne("LibraryManagement.Api.Models.Books.Publisher", "BookPublisher")
-                        .WithMany()
+                        .WithMany("Books")
                         .HasForeignKey("PublisherID");
 
                     b.Navigation("BookAuthor");
@@ -305,10 +318,34 @@ namespace LibraryManagement.Api.Migrations
             modelBuilder.Entity("LibraryManagement.Api.Models.Books.Publisher", b =>
                 {
                     b.HasOne("LibraryManagement.Api.Models.Commons.Country", "CountryInfo")
-                        .WithMany()
+                        .WithMany("Publishers")
                         .HasForeignKey("CountryInfoId");
 
                     b.Navigation("CountryInfo");
+                });
+
+            modelBuilder.Entity("LibraryManagement.Api.Models.Books.Author", b =>
+                {
+                    b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("LibraryManagement.Api.Models.Books.Genre", b =>
+                {
+                    b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("LibraryManagement.Api.Models.Books.Publisher", b =>
+                {
+                    b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("LibraryManagement.Api.Models.Commons.Country", b =>
+                {
+                    b.Navigation("Authors");
+
+                    b.Navigation("Books");
+
+                    b.Navigation("Publishers");
                 });
 #pragma warning restore 612, 618
         }

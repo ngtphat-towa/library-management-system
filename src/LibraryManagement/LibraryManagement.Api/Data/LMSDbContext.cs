@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Api.Models.Books;
+﻿using LibraryManagement.Api.Data.Configurations;
+using LibraryManagement.Api.Models.Books;
 using LibraryManagement.Api.Models.Commons;
 
 using Microsoft.EntityFrameworkCore;
@@ -22,13 +23,20 @@ namespace LibraryManagement.Api.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //Apply configurations using separate configuration classes
+            modelBuilder.ApplyConfiguration(new AuthorConfiguration());
+            modelBuilder.ApplyConfiguration(new BookConfiguration());
+            modelBuilder.ApplyConfiguration(new GenreConfiguration());
+            modelBuilder.ApplyConfiguration(new PublisherConfiguration());
+
             base.OnModelCreating(modelBuilder);
+
 
             // Seed initial data
             SeedData(modelBuilder);
         }
 
-        private void SeedData(ModelBuilder modelBuilder)
+        private static void SeedData(ModelBuilder modelBuilder)
         {
             // Seed Countries
             modelBuilder.Entity<Country>().HasData(
@@ -39,16 +47,16 @@ namespace LibraryManagement.Api.Data
 
             // Seed Genres
             modelBuilder.Entity<Genre>().HasData(
-                new Genre { GenreId = 1, Name = "Fiction", Description = "Fiction Books" },
-                new Genre { GenreId = 2, Name = "Non-Fiction", Description = "Non-Fiction Books" },
-                new Genre { GenreId = 3, Name = "Science Fiction", Description = "Science Fiction Books" }
+                new Genre { GenreId = 1, GenreName = "Fiction", Description = "Fiction Books" },
+                new Genre { GenreId = 2, GenreName = "Non-Fiction", Description = "Non-Fiction Books" },
+                new Genre { GenreId = 3, GenreName = "Science Fiction", Description = "Science Fiction Books" }
             );
 
             // Seed Publishers
             modelBuilder.Entity<Publisher>().HasData(
-                new Publisher { Id = 1, Name = "Penguin Random House", CountryInfoId = 1 },
-                new Publisher { Id = 2, Name = "HarperCollins", CountryInfoId = 2 },
-                new Publisher { Id = 3, Name = "Simon & Schuster", CountryInfoId = 3 }
+                new Publisher { PublisherId = 1, PublisherName = "Penguin Random House", CountryInfoId = 1 },
+                new Publisher { PublisherId = 2, PublisherName = "HarperCollins", CountryInfoId = 2 },
+                new Publisher { PublisherId = 3, PublisherName = "Simon & Schuster", CountryInfoId = 3 }
             );
 
             // Seed Authors

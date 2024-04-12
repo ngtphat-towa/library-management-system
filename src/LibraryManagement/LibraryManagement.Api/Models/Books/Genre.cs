@@ -6,7 +6,9 @@ namespace LibraryManagement.Api.Models.Books
     {
         [Key]
         public int GenreId { get; set; }
-        public string Name { get; set; } = default!;
+        public string GenreName { get; set; } = default!;
         public string Description { get; set; } = default!;
+        public virtual IEnumerable<Book> Books { get; set; } = default!;
+
     }
 }
